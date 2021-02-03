@@ -1,6 +1,6 @@
 const express = require('express');
 const xss = require('xss');
-//const path = require('path')
+const path = require('path');
 const SelfCaresService = require('./selfcares-service.js');
 
 const selfcaresRouter = express.Router();
@@ -13,7 +13,7 @@ const serializedSelfCare = selfcare =>({
     type:selfcare.type,
     rating:selfcare.rating,
     date_modified:selfcare.date_modified
-})
+});
 
 selfcaresRouter
     .route('/')
@@ -22,7 +22,7 @@ selfcaresRouter
             req.app.get('db')
         )
         .then(selfcares=>{
-
+           
             res.json(selfcares.map(serializedSelfCare))
         })
         .catch(next)
@@ -36,7 +36,6 @@ selfcaresRouter
         for(let i=0; i<numberOfEntries; i++){
             let { content, type, rating } = req.body[i]
             let newSelfCare = { content, type, rating }
-
             //checking for null
             for(const [key,value] of Object.entries(newSelfCare)){
                 if(value==null){
@@ -61,11 +60,9 @@ selfcaresRouter
                     })
                 }
             }
-
-
             //add user_id, eventually will be part of req.body
             newSelfCare = {...req.body[i], user_id:2};
-            newSelfCares = [...newSelfCares, newSelfCare]
+            newSelfCares = [...newSelfCares, newSelfCare];
 
         }//end for create newSelfCares array
 
@@ -75,11 +72,10 @@ selfcaresRouter
         )
         .then(selfcares=>{
             res
-                .status(201)
-                .json(selfcares.map(serializedSelfCare))
+               .status(201)
+               .json(selfcares.map(serializedSelfCare))
         })
         .catch(next)
-
     })
 
 module.exports = selfcaresRouter;
