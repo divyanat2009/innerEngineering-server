@@ -5,6 +5,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 const logger = require('./logger');
 const { NODE_ENV } = require('./config');
+const selfcaresRouter = require('./selfcares/selfcares-router.js');
+const gratitudesRouter = require('./gratitudes/gratitudes-router.js');
+const quotesRouter = require('./quotes/quotes-router.js');
+const moodsRouter = require('./moods/moods-router.js');
+const goalsRouter = require('./goals/goals-router.js');
 
 
 const app = express();
@@ -28,6 +33,11 @@ app.use(cors());
     next()
 })*/
 
+app.use('/api/selfcares',selfcaresRouter);
+app.use('/api/gratitudes',gratitudesRouter);
+app.use('/api/quotes', quotesRouter);
+app.use('/api/moods',moodsRouter);
+app.use('/api/goals',goalsRouter);
 
 app.get('/',(req,res)=>{
     res.send('Welcome to Inner Engineering App!')
