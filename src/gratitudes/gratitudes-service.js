@@ -39,7 +39,7 @@ const GratitudesService ={
       .into('ie_gratitudes')
       .returning('*')
       .then(rows=>{
-          return rows[0];
+          return rows;
     });
   }
 }
