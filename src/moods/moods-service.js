@@ -10,7 +10,7 @@ const MoodsService ={
             .returning('*')
             .then(rows=>{
                 return rows[0];
-            });
+        });
     }
 }
 

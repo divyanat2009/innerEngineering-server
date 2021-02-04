@@ -4,7 +4,7 @@ const GratitudesService ={
       .from('ie_gratitudes')
   },
 
-  getSomeGratitudes(knex, page){   
+  getSomeGratitudes(knex, page){  
     const resultsPerPage = 9;
     const offset = resultsPerPage * (page - 1);
     const from = `2020-05-18T00:00:00Z`;
@@ -39,8 +39,8 @@ const GratitudesService ={
       .into('ie_gratitudes')
       .returning('*')
       .then(rows=>{
-          return rows;
-        })
+          return rows[0];
+    });
   }
 }
 module.exports = GratitudesService;

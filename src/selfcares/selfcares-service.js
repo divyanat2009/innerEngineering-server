@@ -9,8 +9,8 @@ const SelfCaresService ={
     .into('ie_selfcares')
     .returning('*')
     .then(rows=>{
-    return rows;
-    })
+    return rows[0];
+    });
   }
 }
 module.exports = SelfCaresService;

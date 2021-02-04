@@ -44,7 +44,7 @@ moodsRouter
         res
            .status(201)
            .json(moods)
-       })
+      })
       .catch(next)
     })
 module.exports = moodsRouter;

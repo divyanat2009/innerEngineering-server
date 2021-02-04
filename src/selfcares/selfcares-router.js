@@ -34,37 +34,37 @@ selfcaresRouter
 
         let newSelfCares = [];
         for(let i=0; i<numberOfEntries; i++){
-            let { content, type, rating } = req.body[i]
-            let newSelfCare = { content, type, rating }
+            let { content, type, rating } = req.body[i];
+            let newSelfCare = { content, type, rating };
             //checking for null
             for(const [key,value] of Object.entries(newSelfCare)){
                 if(value==null){
                     return res.status(400).json({
                         error: { message : `Missing '${key}' in request body` }
-                    })
-                }
-            }//end of for checking for null
+                });
+            }
+        }//end of for checking for null
 
             //checking for valid types and ratings
-            if(type){
-                if(!validTypes.includes(type)){
-                    return res.status(400).json({
-                        error: { message : `Type must be physical, energy, spiritual, emotional` }
-                    })
-                }
+        if(type){
+           if(!validTypes.includes(type)){
+              return res.status(400).json({
+                error: { message : `Type must be physical, energy, spiritual, emotional` }
+              });
             }
-            if(rating){
-                if(rating<0 || rating > 11){
-                    return res.status(400).json({
-                        error: { message : `Rating must be between 1-10` }
-                    })
-                }
-            }
-            //add user_id, eventually will be part of req.body
-            newSelfCare = {...req.body[i], user_id:2};
-            newSelfCares = [...newSelfCares, newSelfCare];
+        }
+        if(rating){
+           if(rating<0 || rating > 11){
+              return res.status(400).json({
+                error: { message : `Rating must be between 1-10` }
+            });
+          }
+        }
+        //add user_id, eventually will be part of req.body
+        newSelfCare = {...req.body[i], user_id:2};
+        newSelfCares = [...newSelfCares, newSelfCare];
 
-        }//end for create newSelfCares array
+        };//end for create newSelfCares array
 
         SelfCaresService.insertSelfCares(
             req.app.get('db'),
@@ -73,9 +73,9 @@ selfcaresRouter
         .then(selfcares=>{
             res
                .status(201)
-               .json(selfcares.map(serializedSelfCare))
+               .json(serializedSelfCare(selfcares))
         })
         .catch(next)
-    })
+    });
 
 module.exports = selfcaresRouter;

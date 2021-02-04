@@ -43,7 +43,5 @@ goalsRouter
                 .json(goals)
         })
         .catch(next)
-
     })
-
 module.exports = goalsRouter;
