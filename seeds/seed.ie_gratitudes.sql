@@ -21,6 +21,6 @@ VALUES
  (2,'Small social gatherings with friends',now() - '13 days'::INTERVAL),
  (2,'Bike rides with friends in the neighborhood',now() - '8 days'::INTERVAL),
  (2,'Loving the sunset view from my home',now() - '7 days'::INTERVAL),
- (2,'Meeting a good mentor and friend',now() - '7 days'::INTERVAL),
+ (2,'Meeting a good friend',now() - '7 days'::INTERVAL),
  (2,'Amazing coding journey at Thinkful',now() - '13 days'::INTERVAL)
  ;
