@@ -1,5 +1,4 @@
 require('dotenv').config();
-require('dotenv').config({silent: true});
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -11,7 +10,7 @@ const gratitudesRouter = require('./gratitudes/gratitudes-router.js');
 const quotesRouter = require('./quotes/quotes-router.js');
 const moodsRouter = require('./moods/moods-router.js');
 const goalsRouter = require('./goals/goals-router.js');
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 
 const app = express();
 
