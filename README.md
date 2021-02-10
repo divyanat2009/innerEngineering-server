@@ -12,21 +12,21 @@ Users can log their daily selfcare and gratitude, set goals for themselves, and 
 
 ## API
 #### Users
-*GET '/api/users to view all users
-*GET '/api/users/:user_id retrieves user by id
-*POST '/api/users creates a new user account
+*GET '/api/users to view all users<br/>
+*GET '/api/users/:user_id retrieves user by id<br/>
+*POST '/api/users creates a new user account<br/>
 #### Selfcares
-*GET '/api/selfcares to view all wellbeing entries
-*POST '/api/selfcares create a new wellbeing entry
+*GET '/api/selfcares to view all wellbeing entries<br/>
+*POST '/api/selfcares create a new wellbeing entry<br/>
 #### Gratitudes
-*GET '/api/gratitudes to view all gratitude entries
-*POST '/api/gratitudes to post a new gratitude entry
+*GET '/api/gratitudes to view all gratitude entries<br/>
+*POST '/api/gratitudes to post a new gratitude entry<br/>
 #### Moods
-*GET '/api/moods to view all mood entries
-*POST '/api/gratitudes to post a new mood entry
+*GET '/api/moods to view all mood entries<br/>
+*POST '/api/gratitudes to post a new mood entry<br/>
 #### Goals
-*GET '/api/goals to view all goal entries
-*POST '/api/gratitudes to post a new goal entry
+*GET '/api/goals to view all goal entries<br/>
+*POST '/api/gratitudes to post a new goal entry<br/>
 #### Quotes
 *GET '/api/quotes to  view all quotes
 

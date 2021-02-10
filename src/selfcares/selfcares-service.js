@@ -1,15 +1,16 @@
 const SelfCaresService ={
   getAllSelfCares(knex){
-    return knex.select('*')
-    .from('ie_selfcares')
+    return knex
+      .select('*')
+      .from('ie_selfcares')
   },
   insertSelfCares(knex, newSelfCares){
     return knex 
-    .insert(newSelfCares)
-    .into('ie_selfcares')
-    .returning('*')
-    .then(rows=>{
-    return rows;
+      .insert(newSelfCares)
+      .into('ie_selfcares')
+      .returning('*')
+      .then(rows=>{
+      return rows;
     });
   }
 }

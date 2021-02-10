@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const logger = require('./logger');
 const { NODE_ENV } = require('./config');
+const usersRouter = require('./users/users-router');
 const selfcaresRouter = require('./selfcares/selfcares-router.js');
 const gratitudesRouter = require('./gratitudes/gratitudes-router.js');
 const quotesRouter = require('./quotes/quotes-router.js');
@@ -32,7 +33,7 @@ app.use(cors());
     }
     next()
 })*/
-
+app.use('/api/users',usersRouter);
 app.use('/api/selfcares',selfcaresRouter);
 app.use('/api/gratitudes',gratitudesRouter);
 app.use('/api/quotes', quotesRouter);
