@@ -2,6 +2,7 @@ const express = require('express');
 const xss = require('xss');
 const path = require('path');
 const SelfCaresService = require('./selfcares-service.js');
+const {requireAuth} = require('../middleware/jwt-auth');
 
 const selfcaresRouter = express.Router();
 const jsonParser = express.json();
@@ -17,7 +18,7 @@ const serializedSelfCare = selfcare =>({
 
 selfcaresRouter
     .route('/')
-    .get((req, res, next)=>{
+    .get(requireAuth, (req, res, next)=>{
         SelfCaresService.getAllSelfCares(
             req.app.get('db')
         )
@@ -27,7 +28,7 @@ selfcaresRouter
         })
         .catch(next)
     })
-    .post(jsonParser, (req, res, next)=>{
+    .post(requireAuth, jsonParser, (req, res, next)=>{
         //providing user_id default
         const numberOfEntries = req.body.length;
         const validTypes = ['emotional', 'spiritual', 'physical','energy'];

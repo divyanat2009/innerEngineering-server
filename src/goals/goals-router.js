@@ -2,13 +2,14 @@ const express = require('express');
 const xss = require('xss');
 const path = require('path');
 const GoalsService = require('./goals-service.js');
+const { requireAuth } = require('../middleware/jwt-auth.js');
 
 const goalsRouter = express.Router();
 const jsonParser = express.json();
 
 goalsRouter
     .route('/')
-    .get((req, res, next)=>{
+    .get(requireAuth, (req, res, next)=>{
         GoalsService.getAllGoals(
             req.app.get('db')
         )
@@ -17,7 +18,7 @@ goalsRouter
         })
         .catch(next)
     })
-    .post(jsonParser, (req, res, next)=>{
+    .post(requireAuth, jsonParser, (req, res, next)=>{
         //providing user_id default           
         const { emotional=0, physical=0, energy=0, spiritual=0 } = req.body;
         let newgoal = { emotional, physical, energy, spiritual };  

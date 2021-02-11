@@ -1,13 +1,14 @@
 const express = require('express');
 const xss = require('xss');
 const MoodsService = require('./moods-service.js');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const moodsRouter = express.Router();
 const jsonParser = express.json();
 
 moodsRouter
   .route('/')
-  .get((req, res, next)=>{
+  .get(requireAuth, (req, res, next)=>{
     MoodsService.getAllMoods(
        req.app.get('db')
      )
@@ -16,7 +17,7 @@ moodsRouter
     })
   .catch(next)
   })
-  .post(jsonParser, (req, res, next)=>{
+  .post(requireAuth, jsonParser, (req, res, next)=>{
    //providing user_id default
    const { mood_level, energy_level } = req.body;
    let newMood = { mood_level, energy_level }; 

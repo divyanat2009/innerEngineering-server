@@ -2,6 +2,7 @@ const express = require('express');
 const xss = require('xss');
 const path = require('path');
 const GratitudesService = require('./gratitudes-service.js');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const gratitudesRouter = express.Router()
 const jsonParser = express.json();
@@ -15,7 +16,7 @@ const serializedGratitude = gratitude =>({
 
 gratitudesRouter
     .route('/')
-    .get((req, res, next)=>{
+    .get(requireAuth, (req, res, next)=>{
         console.log(`did this run`);
         GratitudesService.getAllGratitudes(
           req.app.get('db')
@@ -26,7 +27,7 @@ gratitudesRouter
         .catch(next)
     })
 
-    .post(jsonParser, (req, res, next)=>{
+    .post(requireAuth, jsonParser, (req, res, next)=>{
         const numberOfEntries = req.body.length;
         let newGratitudes = [];
         for(let i=0; i<numberOfEntries; i++){         
@@ -35,7 +36,6 @@ gratitudesRouter
                     error: { message : `Missing content in request body`}
             });
         }
-
         //add in the user_id
         //eventually user_id will be part of req.body
         let newGratitude = {...req.body[i],user_id:2};

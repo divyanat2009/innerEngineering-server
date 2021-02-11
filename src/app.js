@@ -11,7 +11,9 @@ const gratitudesRouter = require('./gratitudes/gratitudes-router.js');
 const quotesRouter = require('./quotes/quotes-router.js');
 const moodsRouter = require('./moods/moods-router.js');
 const goalsRouter = require('./goals/goals-router.js');
+const authRouter = require('./auth/auth-router');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
+
 
 const app = express();
 
@@ -34,6 +36,7 @@ app.use(cors());
     next()
 })*/
 app.use('/api/users',usersRouter);
+app.use('/api/auth', authRouter);
 app.use('/api/selfcares',selfcaresRouter);
 app.use('/api/gratitudes',gratitudesRouter);
 app.use('/api/quotes', quotesRouter);

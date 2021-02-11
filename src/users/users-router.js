@@ -1,132 +1,77 @@
-const express = require('express');
-const xss = require('xss');
 const path = require('path');
-const UsersService = require('./users-service');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const {JWT_SECRET} = require("../config");
-
-var jwt = require('jsonwebtoken');
-var token = jwt.sign({ foo: 'bar' }, JWT_SECRET);
-
-
-
+const express = require('express');
+const UsersService  = require('../users/users-service');
 const usersRouter = express.Router();
-const jsonParser = express.json();
+const jsonBodyParser = express.json();
 
-const serializedUser = user =>({
-    id:user.id,
-    username:xss(user.username),
-    fullname:xss(user.fullname),
-})
 
 usersRouter
-  .route('/')
-  .get((req, res,next)=>{
-
-    UsersService.getAllUsers(
-      req.app.get('db')
-    )
-    .then(users=>{
-       res.json(users.map(serializedUser))
+.route('/')
+.get((req, res, next) => {
+  const knexInstance = req.app.get('db')
+  UsersService.getAllUsers(knexInstance)
+    .then(users => {
+    res.json(users)
     })
     .catch(next)
     })
-    .post(jsonParser, (req, res, next)=>{
-       const { fullname, username, password } = req.body;
-  
-        bcrypt.genSalt(saltRounds, function(err, salt) {
-          bcrypt.hash(password, salt, function(err, hash) {
-            
-            const password = hash;
-            const newUser = { fullname, username, password };
 
-            for(const [key, value] of Object.entries(newUser)){
-              if(value==null){
-                return res.status(400).json({
-                  error: {message: `Missing '${key}' in request body`}
-                 });
-                };
-            };
-
-            UsersService.insertNewUser(
-              req.app.get('db'),
-              newUser
-             )
-            .then(user=>{
-              res
-                .status(201)
-                .location(path.posix.join(req.originalUrl + `/${user.id}`))
-                .json(serializedUser(user))
-             })
-             .catch(next)
-
-          });
-      });       
+.post(jsonBodyParser, (req, res, next) => {
+  const { fullname, username, password } = req.body;
+    for (const field of [ 'fullname', 'username', 'password'])
+    if (!req.body[field])
+    return res.status(400).json({ error: `Missing '${field}' in request body` });
+  const passwordError = UsersService.validatePassword(password);
+    if (passwordError)
+    return res.status(400).json({ error: passwordError });
+  UsersService.hasUserWithUserName(
+    req.app.get('db'),
+    username
+    )
+    .then(hasUserWithUserName => {
+    if (hasUserWithUserName)
+    return res.status(400).json({ error: `Username already taken` });
+    return UsersService.hashPassword(password)
+    .then(hashedPassword => {
+  const newUser = {
+    fullname,
+    username,    
+    password: hashedPassword,
+    }
+    return UsersService.insertUser(
+      req.app.get('db'),
+      newUser
+    )
+    .then(user => {
+      res.status(201)
+        .location(path.posix.join(req.originalUrl, `/${user.id}`))
+        .json(UsersService.serializeUser(user))
     })
+    })
+    })  
+     .catch(next)
+  })
 
 usersRouter
-    .route(`/:user_id`)
-    .all((req, res, next)=>{
-        UsersService.getUserByUserId(
-          req.app.get('db'),
-          req.params.user_id
-        )
-        .then(user=>{
-          if(!user){
-             return res.status(404).json({
-             error: {message: `User doesn't exist` }
-              });
-            }
-            res.user = user
-            next()
-        })
-        .catch(next)       
+  .route('/:users_id')
+  .all((req, res, next) => {
+    UsersService.getById(
+      req.app.get('db'),
+      req.params.users_id
+    )
+    .then(user => {
+    if (!user) {
+    return res
+            .status(404)
+            .json({ error: { message: `user does not exist` } 
+          });
+    }
+    res.user = user;
+    next()
     })
-    .get((req, res, next)=>{
-        res.json(serializedUser(res.user))
+    .catch(next)
     })
-    .delete((req, res, next)=>{
-        UsersService.deleteUser(
-            req.app.get('db'),
-            req.params.user_id
-        )
-        .then(()=>{
-            res.status(204).end()
-        })
-        .catch(next)
-    })
+  .get((req, res) => { res.json(res.user) }
+)
 
-
-    usersRouter
-    .route(`/checkuser/:username`)
-    .all((req, res, next)=>{
-        UsersService.getUserByUsername(
-          req.app.get('db'),
-          req.params.username
-        )
-        .then(user=>{
-          if(!user){
-             return res.status(404).json({
-             error: {message: `User doesn't exist` }
-              });
-            }
-            res.user = user
-            next()
-        })
-        .catch(next)       
-    })
-
-    .post(jsonParser, (req, res, next)=>{
-      const { password } = req.body;
-      bcrypt.compare(password, res.user.password, function(error, response) {
-        if(!response){
-          res.status(401).json({success: false});
-        } 
-        else
-        {
-          res.status(200).json({"token": token});
-        }       
-      });       
-    })
-module.exports = usersRouter; 
+module.exports = usersRouter;
