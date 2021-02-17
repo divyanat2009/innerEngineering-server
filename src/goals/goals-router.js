@@ -10,7 +10,7 @@ const jsonParser = express.json();
 goalsRouter
     .route('/')
     .get(requireAuth, (req, res, next)=>{
-        GoalsService.getAllGoals(
+        GoalsService.getAllGoalsByUser(
             req.app.get('db')
         )
         .then(goals=>{           
@@ -21,8 +21,7 @@ goalsRouter
     .post(requireAuth, jsonParser, (req, res, next)=>{
         //providing user_id default           
         const { emotional=0, physical=0, energy=0, spiritual=0 } = req.body;
-        let newgoal = { emotional, physical, energy, spiritual };  
-        console.log(newgoal);
+        let newgoal = { emotional, physical, energy, spiritual };          
         //checking for null and valid number
         for(const [key,value] of Object.entries(newgoal)){        
             if(value<-1 || value > 11){
@@ -32,7 +31,7 @@ goalsRouter
             }
         }//end of for checking for null
         //add user_id
-        newgoal = {...newgoal, user_id:2};
+        newgoal = {...newgoal, user_id};
 
         GoalsService.insertGoals(
             req.app.get('db'),

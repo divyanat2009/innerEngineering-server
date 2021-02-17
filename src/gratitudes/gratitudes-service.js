@@ -4,7 +4,10 @@ const GratitudesService ={
         .select('*')
         .from('ie_gratitudes')
   },
-
+  getAllEntriesByUser(knex, user_id){
+    return knex('ie_gratitudes')
+        .where({ user_id })
+  },
   getSomeGratitudes(knex, page){  
     const resultsPerPage = 9;
     const offset = resultsPerPage * (page - 1);

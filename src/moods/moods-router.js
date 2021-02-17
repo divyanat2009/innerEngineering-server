@@ -2,15 +2,22 @@ const express = require('express');
 const xss = require('xss');
 const MoodsService = require('./moods-service.js');
 const { requireAuth } = require('../middleware/jwt-auth');
+const { id } = require('date-fns/locale');
 
 const moodsRouter = express.Router();
 const jsonParser = express.json();
 
+const serializedMoods = moods =>({
+  id:moods.id,
+  user_id:moods.user_id,
+});
+
 moodsRouter
   .route('/')
   .get(requireAuth, (req, res, next)=>{
-    MoodsService.getAllMoods(
-       req.app.get('db')
+    const knexInstance= req.app.get('db');
+    MoodsService.getAllMoodsByUser(
+       knexInstance, req.user.id
      )
   .then(moods=>{           
     res.json(moods)
@@ -36,7 +43,8 @@ moodsRouter
     }//end of for checking for null
 
     //add user_id
-    newMood = {...newMood, user_id:2};
+    newMood.user_id=req.user.id;
+
     MoodsService.insertMoods(
       req.app.get('db'),
        newMood

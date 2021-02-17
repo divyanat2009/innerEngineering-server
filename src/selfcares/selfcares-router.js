@@ -19,18 +19,28 @@ const serializedSelfCare = selfcare =>({
 selfcaresRouter
     .route('/')
     .get(requireAuth, (req, res, next)=>{
-        SelfCaresService.getAllSelfCares(
-            req.app.get('db')
+        const knexInstance=req.app.get('db');
+        SelfCaresService.getAllSelcaresByUser(
+            knexInstance, req.user.id
         )
-        .then(selfcares=>{
-           
+        .then(selfcares=>{           
             res.json(selfcares.map(serializedSelfCare))
         })
         .catch(next)
     })
     .post(requireAuth, jsonParser, (req, res, next)=>{
+        const {content, type, rating} = req.body;
+        const newSelfCare = {content, type, rating};
+        for(const [key,value] of Object.entries(newSelfCare)){
+            if(value==null){
+                return res.status(400).json({
+                    error: { message : `Missing '${key}' in request body` }
+            });
+        }
+
+    }
         //providing user_id default
-        const numberOfEntries = req.body.length;
+        /*const numberOfEntries = req.body.length;
         const validTypes = ['emotional', 'spiritual', 'physical','energy'];
 
         let newSelfCares = [];
@@ -62,11 +72,11 @@ selfcaresRouter
           }
         }
         //add user_id, eventually will be part of req.body
-        newSelfCare = {...req.body[i], user_id:2};
+        newSelfCare = {...req.body[i], user_id};
         newSelfCares = [...newSelfCares, newSelfCare];
 
-        };//end for create newSelfCares array
-
+        };//end for create newSelfCares array*/
+        newSelfCares.user_id = req.user.id
         SelfCaresService.insertSelfCares(
             req.app.get('db'),
             newSelfCares
