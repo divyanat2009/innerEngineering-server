@@ -2,8 +2,9 @@ const GoalsService ={
     getAllGoals(knex){
       return knex.select('*').from('ie_goals')
     },
-    getAllGoalsByUser(knex, user_id){
-        return knex('ie_goals')
+    getAllGoalsByUserId(knex, user_id){
+        return knex
+            .from('ie_goals')
             .where({ user_id })
     },
 

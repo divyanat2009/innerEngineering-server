@@ -4,8 +4,9 @@ const GratitudesService ={
         .select('*')
         .from('ie_gratitudes')
   },
-  getAllEntriesByUser(knex, user_id){
-    return knex('ie_gratitudes')
+  getAllEntriesByUserId(knex, user_id){
+    return knex
+        .from('ie_gratitudes')
         .where({ user_id })
   },
   getSomeGratitudes(knex, page){  

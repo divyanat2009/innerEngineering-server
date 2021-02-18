@@ -10,7 +10,7 @@ const jsonParser = express.json();
 goalsRouter
     .route('/')
     .get(requireAuth, (req, res, next)=>{
-        GoalsService.getAllGoalsByUser(
+        GoalsService.getAllGoalsByUserId(
             req.app.get('db')
         )
         .then(goals=>{           

@@ -18,7 +18,7 @@ gratitudesRouter
     .route('/')
     .get(requireAuth, (req, res, next)=>{
         const knexInstance=req.app.get('db');
-        GratitudesService.getAllEntriesByUser(
+        GratitudesService.getAllEntriesByUserId(
           knexInstance, req.user.id
         )
         .then(gratitudes=>{

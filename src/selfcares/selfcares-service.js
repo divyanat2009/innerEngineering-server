@@ -4,8 +4,9 @@ const SelfCaresService ={
       .select('*')
       .from('ie_selfcares')
   },
-  getAllSelcaresByUser(knex, user_id){
-    return knex('ie_selfcares')
+  getAllSelcaresByUserId(knex, user_id){
+    return knex
+        .from('ie_selfcares')
         .where({ user_id })
 },
   insertSelfCares(knex, newSelfCares){

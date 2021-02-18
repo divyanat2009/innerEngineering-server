@@ -20,7 +20,7 @@ selfcaresRouter
     .route('/')
     .get(requireAuth, (req, res, next)=>{
         const knexInstance=req.app.get('db');
-        SelfCaresService.getAllSelcaresByUser(
+        SelfCaresService.getAllSelcaresByUserId(
             knexInstance, req.user.id
         )
         .then(selfcares=>{           
