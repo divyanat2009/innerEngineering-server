@@ -8,10 +8,11 @@ const goalsRouter = express.Router();
 const jsonParser = express.json();
 
 goalsRouter
-    .route('/')
+    .route('/:id')
     .get(requireAuth, (req, res, next)=>{
+        const knexInstance=req.app.get('db');
         GoalsService.getAllGoalsByUserId(
-            req.app.get('db')
+            knexInstance, req.params.id
         )
         .then(goals=>{           
             res.json(goals)
@@ -31,7 +32,7 @@ goalsRouter
             }
         }//end of for checking for null
         //add user_id
-        newgoal = {...newgoal, user_id};
+        newgoal.user_id = req.params.id;
 
         GoalsService.insertGoals(
             req.app.get('db'),

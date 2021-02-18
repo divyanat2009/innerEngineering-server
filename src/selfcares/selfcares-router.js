@@ -17,11 +17,11 @@ const serializedSelfCare = selfcare =>({
 });
 
 selfcaresRouter
-    .route('/')
+    .route('/:id')
     .get(requireAuth, (req, res, next)=>{
         const knexInstance=req.app.get('db');
         SelfCaresService.getAllSelcaresByUserId(
-            knexInstance, req.user.id
+            knexInstance, req.params.id
         )
         .then(selfcares=>{           
             res.json(selfcares.map(serializedSelfCare))
@@ -76,10 +76,10 @@ selfcaresRouter
         newSelfCares = [...newSelfCares, newSelfCare];
 
         };//end for create newSelfCares array*/
-        newSelfCares.user_id = req.user.id
+        newSelfCare.user_id = req.params.id
         SelfCaresService.insertSelfCares(
             req.app.get('db'),
-            newSelfCares
+            newSelfCare
         )
         .then(selfcares=>{
             res

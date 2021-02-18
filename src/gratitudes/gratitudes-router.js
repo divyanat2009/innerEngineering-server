@@ -15,11 +15,11 @@ const serializedGratitude = gratitude =>({
 });
 
 gratitudesRouter
-    .route('/')
+    .route('/:id')
     .get(requireAuth, (req, res, next)=>{
         const knexInstance=req.app.get('db');
         GratitudesService.getAllEntriesByUserId(
-          knexInstance, req.user.id
+          knexInstance, req.params.id
         )
         .then(gratitudes=>{
            res.json(gratitudes.map(serializedGratitude))
@@ -35,7 +35,7 @@ gratitudesRouter
                 error: { message : `Missing content in request body`}
             });
         }
-        newGratitude.user_id = req.user.id
+        newGratitude.user_id = req.params.id
         //const numberOfEntries = req.body.length;
         //let newGratitudes = [];
         //for(let i=0; i<numberOfEntries; i++){         
@@ -51,7 +51,7 @@ gratitudesRouter
            
         GratitudesService.insertGratitudes(
             req.app.get('db'),
-            newGratitudes
+            newGratitude
         )
         .then(gratitudes=>{
             res

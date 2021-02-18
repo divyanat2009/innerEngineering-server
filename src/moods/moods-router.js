@@ -13,11 +13,11 @@ const serializedMoods = moods =>({
 });
 
 moodsRouter
-  .route('/')
+  .route('/:id')
   .get(requireAuth, (req, res, next)=>{
     const knexInstance= req.app.get('db');
     MoodsService.getAllMoodsByUser(
-       knexInstance, req.user.id
+       knexInstance, req.params.id
      )
   .then(moods=>{           
     res.json(moods)
@@ -43,7 +43,7 @@ moodsRouter
     }//end of for checking for null
 
     //add user_id
-    newMood.user_id=req.user.id;
+    newMood.user_id=req.params.id;
 
     MoodsService.insertMoods(
       req.app.get('db'),
