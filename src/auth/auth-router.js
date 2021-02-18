@@ -32,7 +32,7 @@ AuthService.getUserWithUserName(
     const payload = { userid: dbUser.id }
       res.send({
       authToken: AuthService.createJwt(sub, payload),
-      username:dbUser.id
+      id:dbUser.id
       });
     });
   })

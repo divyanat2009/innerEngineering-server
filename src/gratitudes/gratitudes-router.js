@@ -29,13 +29,16 @@ gratitudesRouter
 
     .post(requireAuth, jsonParser, (req, res, next)=>{
         const {content} = req.body;
-        const newGratitude = {content}
+        console.log(req.body);
+        //const newGratitude = content
+       
         if(!content){
             return res.status(400).json({
                 error: { message : `Missing content in request body`}
             });
         }
-        newGratitude.user_id = req.params.id
+        
+        const newGratitude={user_id: req.params.id, content:content}
         //const numberOfEntries = req.body.length;
         //let newGratitudes = [];
         //for(let i=0; i<numberOfEntries; i++){         
@@ -56,7 +59,7 @@ gratitudesRouter
         .then(gratitudes=>{
             res
                .status(201)
-               .location(path.posix.join(req.originalUrl + `/${gratitude.id}`))
+               .location(path.posix.join(req.originalUrl + `/${gratitudes.id}`))
                .json(serializedGratitude(gratitudes))
         })
         .catch(next)
