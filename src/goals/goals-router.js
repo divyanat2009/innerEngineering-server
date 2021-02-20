@@ -32,8 +32,7 @@ goalsRouter
             }
         }//end of for checking for null
         //add user_id
-        newgoal.user_id = req.params.id;
-
+        newgoal = {...newgoal, user_id:req.params.id}
         GoalsService.insertGoals(
             req.app.get('db'),
             newgoal

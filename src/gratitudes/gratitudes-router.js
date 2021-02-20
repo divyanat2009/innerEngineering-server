@@ -29,37 +29,37 @@ gratitudesRouter
 
     .post(requireAuth, jsonParser, (req, res, next)=>{
         const {content} = req.body;
-        console.log(req.body);
-        //const newGratitude = content
-       
+        console.log(req.body);              
         if(!content){
-            return res.status(400).json({
-                error: { message : `Missing content in request body`}
-            });
-        }
-        
-        const newGratitude={user_id: req.params.id, content:content}
-        //const numberOfEntries = req.body.length;
-        //let newGratitudes = [];
-        //for(let i=0; i<numberOfEntries; i++){         
-        //    if(req.body[i].content==null){
+          return res.status(400).json({
+            error: { message : `Missing content in request body`}
+        });
+        }        
+        let newGratitude={ content }
+        console.log(newGratitude);
+        // //const numberOfEntries = req.body.length;
+        // //let newGratitudes = [];
+        // for(let i=0; i<numberOfEntries; i++){         
+        //     if(req.body[i].content==null){
         //       return res.status(400).json({
         //         error: { message : `Missing content in request body`}
-            
-        
-        //add in the user_id
-        //eventually user_id will be part of req.body
-        //let newGratitude = {...req.body[i],user_id};
-        //newGratitudes = [...newGratitudes, newGratitude]
-           
+        //       });
+        //     }  
+        // //add in the user_id
+        //  let newGratitude = {...req.body[i],user_id:req.params.id};
+        //         newGratitudes = [...newGratitudes, newGratitude]
+        //         console.log(newGratitudes);
+
+        //add user
+        newGratitude = {...newGratitude, user_id:req.params.id }
         GratitudesService.insertGratitudes(
             req.app.get('db'),
             newGratitude
         )
         .then(gratitudes=>{
+          console.log(gratitudes);
             res
-               .status(201)
-               .location(path.posix.join(req.originalUrl + `/${gratitudes.id}`))
+               .status(201)               
                .json(serializedGratitude(gratitudes))
         })
         .catch(next)

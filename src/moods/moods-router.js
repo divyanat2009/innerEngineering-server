@@ -43,7 +43,7 @@ moodsRouter
     }//end of for checking for null
 
     //add user_id
-    newMood.user_id=req.params.id;
+    newMood = {...newMood, user_id:req.params.id}
 
     MoodsService.insertMoods(
       req.app.get('db'),

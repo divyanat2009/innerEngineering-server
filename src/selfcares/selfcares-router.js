@@ -30,8 +30,8 @@ selfcaresRouter
     })
     .post(requireAuth, jsonParser, (req, res, next)=>{
         const {content, type, rating} = req.body;
-        //const newSelfCare = {content, type, rating};
-        const newSelfCare={user_id: req.params.id, content:content, type:type, rating:rating}
+        let newSelfCare = {content, type, rating};
+        //const newSelfCare={user_id: req.params.id, content:content, type:type, rating:rating}
         for(const [key,value] of Object.entries(newSelfCare)){
             if(value==null){
                 return res.status(400).json({
@@ -77,7 +77,7 @@ selfcaresRouter
         newSelfCares = [...newSelfCares, newSelfCare];
 
         };//end for create newSelfCares array*/
-        
+        newSelfCare={...newSelfCare, user_id:req.params.id}
         SelfCaresService.insertSelfCares(
             req.app.get('db'),
             newSelfCare
