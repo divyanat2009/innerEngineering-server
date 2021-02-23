@@ -10,7 +10,7 @@ const jsonParser = express.json();
 const serializedGratitude = gratitude =>({
     id:gratitude.id,
     user_id:gratitude.user_id,
-    content:xss(gratitude.content),
+    content:gratitude.content,
     date_modified:gratitude.date_modified,
 });
 
@@ -50,8 +50,8 @@ gratitudesRouter
           console.log(gratitudes);
             res
                .status(201)   
-               .location(path.posix.join(req.originalUrl + `/${gratitudes.id}`))            
-               .json(serializedGratitude(gratitudes))
+               //.location(path.posix.join(req.originalUrl + `/${gratitudes.id}`))            
+               .json(serializedGratitude(gratitudes[0]))
         })
         .catch(next)
     });    

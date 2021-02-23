@@ -10,7 +10,7 @@ const jsonParser = express.json();
 const serializedSelfCare = selfcare =>({
     id:selfcare.id,
     user_id:selfcare.user_id,
-    content:xss(selfcare.content),
+    content:selfcare.content,
     type:selfcare.type,
     rating:selfcare.rating,
     date_modified:selfcare.date_modified
@@ -20,7 +20,7 @@ selfcaresRouter
     .route('/:id')
     .get(requireAuth, (req, res, next)=>{
         const user_id= req.params.id;
-        SelfcaresService.getAllEntriesByUserId(
+        SelfCaresService.getAllSelcaresByUserId(
              req.app.get('db'),
              user_id
            )
@@ -52,8 +52,8 @@ selfcaresRouter
           console.log(selfcares);
             res
                .status(201)   
-               .location(path.posix.join(req.originalUrl + `/${selfcares.id}`))            
-               .json(serializedSelfCare(selfcares))
+               //.location(path.posix.join(req.originalUrl + `/${selfcares.id}`))            
+               .json(serializedSelfCare(selfcares[0]))
         })
         .catch(next)
     }); 
