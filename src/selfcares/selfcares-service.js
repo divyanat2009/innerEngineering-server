@@ -8,6 +8,7 @@ const SelfCaresService ={
     return knex
         .from('ie_selfcares')
         .where({ user_id })
+        .orderBy('date_modified', 'desc')
 },
   insertSelfCares(knex, newSelfCares){
     return knex 

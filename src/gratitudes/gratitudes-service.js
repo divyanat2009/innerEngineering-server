@@ -8,6 +8,7 @@ const GratitudesService ={
     return knex
         .from('ie_gratitudes')
         .where({ user_id })
+        .orderBy('date_modified', 'desc')
   },
   getSomeGratitudes(knex, page){  
     const resultsPerPage = 9;
