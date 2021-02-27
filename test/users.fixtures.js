@@ -16,4 +16,5 @@ function makeUsersArray(){
         },
     ];
 }
-module.exports = {makeUsersArray};
+
+module.exports={makeUsersArray};

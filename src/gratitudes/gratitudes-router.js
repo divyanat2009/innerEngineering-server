@@ -36,7 +36,7 @@ gratitudesRouter
     .post(requireAuth, jsonParser, (req, res, next)=>{      
         const {user_id, content} = req.body;
         let newGratitude={ user_id, content };
-        console.log(req.body);              
+              
         if(!content){
           return res.status(400).json({
             error: { message : `Missing content in request body`}
@@ -46,11 +46,9 @@ gratitudesRouter
             req.app.get('db'),
             newGratitude
         )
-        .then(gratitudes=>{
-          console.log(gratitudes);
+        .then(gratitudes=>{          
             res
-               .status(201)   
-               //.location(path.posix.join(req.originalUrl + `/${gratitudes.id}`))            
+               .status(201)                            
                .json(serializedGratitude(gratitudes[0]))
         })
         .catch(next)

@@ -1,6 +1,5 @@
 const knex = require('knex');
 const app = require('../src/app');
-const { makeUsersArray } = require('./users.fixtures.js');
 const { makeQuotesArray } = require('./quotes.fixtures.js');
 require('dotenv').config();
 
@@ -13,12 +12,7 @@ describe(`ie endpoint /api/quotes`,()=>{
           });
           app.set('db', db)
     });
-
-    after(`disconnect from db`,()=>db.destroy());
-
-    before('clean the table', () => db.raw('TRUNCATE ie_quotes, ie_users RESTART IDENTITY CASCADE'));
-
-    afterEach('cleanup',() => db.raw('TRUNCATE ie_quotes, ie_users RESTART IDENTITY CASCADE'));
+    
 
     describe(`GET /api/quotes`,()=>{
         context(`Given no quotes`,()=>{
@@ -29,20 +23,8 @@ describe(`ie endpoint /api/quotes`,()=>{
             })
         })//end context no quotes
 
-        context(`Given quotes in the db`,()=>{
-            const testUsers = makeUsersArray();
-            const testquotes = makeQuotesArray();
-
-            beforeEach(`insert users and quotes`,()=>{
-                return db
-                    .into('ie_users')
-                    .insert(testUsers)
-                    .then(()=>{
-                        return db
-                            .into('ie_quotes')
-                            .insert(testquotes)
-                    })
-            })//end beforeEach
+        context(`Given quotes in the db`,()=>{            
+            const testquotes = makeQuotesArray();        
 
             it(`responds with all quotes`,()=>{
                 return supertest(app)

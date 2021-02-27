@@ -27,22 +27,8 @@ function makeGratitudesArray(){
     ];
 }
 
-function makeMaliciousGratitude(){
-    const maliciousGratitude={
-        id:911,
-        user_id:1,
-        date_modified:new Date().toISOString(),
-        content:`Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`
-    };
-    const expectedGratitude={
-        ...maliciousGratitude,
-        content:`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`
 
-    };
-    return {maliciousGratitude, expectedGratitude};
-}
 
 module.exports ={
-    makeGratitudesArray,
-    makeMaliciousGratitude
+    makeGratitudesArray   
 };

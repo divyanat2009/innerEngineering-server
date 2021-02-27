@@ -1,105 +1,102 @@
 const knex = require('knex');
 const app = require('../src/app');
 require('dotenv').config();
-const { makeUsersArray } = require('./users.fixtures.js');
-const { makeGoalsArray } = require('./goals.fixtures.js');
+const helpers = require('./test-helpers');
+const jwt = require('jsonwebtoken');
 
-describe(`ie endpoint /api/goals`,()=>{
-    let db;
-    before('make knex instance',()=>{
+describe('Goals Endpoints', function() {
+    let db 
+    const { testUsers } = helpers.makeFixtures()
+
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+    const token = jwt.sign(
+        { user_id: user.id },
+         secret,
+        { subject: user.username,
+          algorithm: 'HS256', }
+        )
+       return `Bearer ${token}`
+    }
+
+    before('make knex instance', () => {
         db = knex({
-            client: 'pg',
-            connection: process.env.TEST_DATABASE_URL,
-          });
-          app.set('db', db)
-    })
+          client: 'pg',
+          connection: process.env.TEST_DATABASE_URL,
+        })
+        app.set('db', db)
+      })      
 
-    after(`disconnect from db`,()=>db.destroy());
-
-    before('clean the table', () => db.raw('TRUNCATE ie_goals, ie_users RESTART IDENTITY CASCADE'));
-
-    afterEach('cleanup',() => db.raw('TRUNCATE ie_goals, ie_users RESTART IDENTITY CASCADE'));
-
-    describe(`GET /api/goals`,()=>{
-        context(`Given no goals`,()=>{
-            it(`responds with 200 and an empty list`,()=>{
-                return supertest(app)
-                .get('/api/goals')                
-                .expect(200,[])
-            });
-        })//end context no goals
-
-        context(`Given goals in the db`,()=>{
-            const testUsers = makeUsersArray();
-            const testgoals = makeGoalsArray();
-            beforeEach(`insert users and goals`,()=>{
-                return db
-                    .into('ie_users')
-                    .insert(testUsers)
-                    .then(()=>{
-                        return db
-                            .into('ie_goals')
-                            .insert(testgoals)
-                    });
-            })//end beforeEach
-
-            it(`responds with all goals`,()=>{
-                return supertest(app)
-                    .get('/api/goals')                
-                    .expect(200, testgoals)
-            })//end it with goals in db
-        })//end context goals in db       
-    })//end describe GET
-
-    describe (`POST /api/goals`,()=>{
-        const testUsers = makeUsersArray();
-        beforeEach(`insert users`,()=>{
-            return db
-            .into('ie_users')
-            .insert(testUsers)
-        })//end of beforeEach 
-
-        it(`creates new goal entries with a 201 and the new entries with a default user_id`, function(){
-            //this.retries(3)
-            //will add in a user_id to newgoals
-            const newgoal=
-                {
-                    emotional:1,
-                    physical:3,
-                    energy:5,
-                    spiritual:6
-                };
+describe(`Protected Endpoints`, () => {
+    const protectedEndpoints = [      
+        {
+            name: 'GET /api/goals/:id',
+            path: '/api/goals/1'
+        },
+        {
+            name:'POST /api/goals/:id',
+            path: '/api/goals/1'
+        },
+      
+    ]
+    protectedEndpoints.forEach(endpoint => { 
+    describe(endpoint.name, () => {
+        it(`responds w 401 'missing bearer token when no basic token`,() => {
             return supertest(app)
-                .post('/api/goals')                
-                .send(newgoal)
-                .expect(res=>{
-                expect(res.body.emotional).to.eql(newgoal.emotional)
-                expect(res.body.physical).to.eql(newgoal.physical)
-                expect(res.body.energy).to.eql(newgoal.energy)
-                expect(res.body.spiritual).to.eql(newgoal.spiritual)
-                expect(res.body).to.have.property('user_id')
-                expect(res.body).to.have.property('id')
-                });
+                .get(endpoint.path)
+                .expect(401, { error: `Missing bearer token` })   
+        })
+        it(`responds 401 'unauthorized request' when invalid JWT secret`, () => {
+            const validUser = testUsers[0]
+            const invalidSecret = 'bad-secret'
+            return supertest(app)
+                .get(endpoint.path)
+                .set('Authorization', makeAuthHeader(validUser, invalidSecret))
+                .expect(401, { error: `Unauthorized request` })
+        })
+        it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
+            const invalidUser = { username: 'user-not-existy', id: 1 }
+            return supertest(app)
+                  .get(endpoint.path)
+                  .set('Authorization', makeAuthHeader(invalidUser))
+                  .expect(401, { error: `Unauthorized request` })
+        })
+    })
+})
 
-        })//end of it creates new entries
-
-        const validFields = ['emotional', 'physical','energy','spiritual'];
-        validFields.forEach(field=>{
-            const newgoal = {
-                    emotional:1,
-                    physical:3,
-                    emotional:5,
-                    spiritual:6
-            };
-            it(`responds with a 400 and an error message when ${field} is missing`,()=>{
-                newgoal[field] = 80;
+      context(`/api/goals/:id`, () => {        
+        it(`should respond with 200 and a list of goals`, () => {
+          return supertest(app)
+            .get('/api/goals/1')
+            .set('Authorization', makeAuthHeader(testUsers[0]))
+            .expect(200, [
+                {
+                    emotional: "4",
+                    spiritual:"7",
+                    physical:"5",
+                    energy:"7"
+                }
+                ])
+            })
+          
+            it(`POST /api/goals/1`, () => {
                 return supertest(app)
-                    .post('/api/goals')                    
-                    .send(newgoal)
-                    .expect(400,{ error: {message : `${field} must be between 1-10`}
-                    })
-
-            })//end of it required field
-        })//end of forEach
-    })//end of describe POST /goals
+                  .post('/api/goals/1')
+                  .set('Authorization', makeAuthHeader(testUsers[0]))
+                  .send({ 
+                        emotional: "4",
+                        spiritual:"7",
+                        physical:"5",
+                       energy:"7"                    
+                   })
+                  .expect(201, 
+                    {
+                        emotional: "4",
+                        spiritual:"7",
+                        physical:"5",
+                        energy:"7"
+                    }
+                  );
+             });
+        });   
+      });
 })//end of describe /goal endpoint

@@ -38,7 +38,7 @@ selfcaresRouter
     .post(requireAuth, jsonParser, (req, res, next)=>{      
         const {user_id, content, type, rating} = req.body;
         let newSelfcare={ user_id, content, type, rating };
-        console.log(req.body);              
+                
         if(!content){
           return res.status(400).json({
             error: { message : `Missing content in request body`}
@@ -48,11 +48,9 @@ selfcaresRouter
             req.app.get('db'),
             newSelfcare
         )
-        .then(selfcares=>{
-          console.log(selfcares);
+        .then(selfcares=>{          
             res
-               .status(201)   
-               //.location(path.posix.join(req.originalUrl + `/${selfcares.id}`))            
+               .status(201)                            
                .json(serializedSelfCare(selfcares[0]))
         })
         .catch(next)

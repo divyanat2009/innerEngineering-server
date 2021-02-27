@@ -1,123 +1,101 @@
 const knex = require('knex');
 const app = require('../src/app');
-const { makeUsersArray } = require('./users.fixtures.js');
-const { makeMoodsArray } = require('./moods.fixtures.js');
 require('dotenv').config();
+const helpers = require('./test-helpers');
+const jwt = require('jsonwebtoken');
 
-describe(`ie endpoint /api/moods`,()=>{
-    let db;
-    before('make knex instance',()=>{
+describe('Moods Endpoints', function() {
+    let db 
+    const { testUsers} = helpers.makeFixtures()
+
+function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+    const token = jwt.sign(
+        { user_id: user.id },
+         secret,
+        { subject: user.username,
+          algorithm: 'HS256', }
+        )
+       return `Bearer ${token}`
+    }
+
+    before('make knex instance', () => {
         db = knex({
-            client: 'pg',
-            connection: process.env.TEST_DATABASE_URL,
-          });
-          app.set('db', db)
-    });
+          client: 'pg',
+          connection: process.env.TEST_DATABASE_URL,
+        })
+        app.set('db', db)
+      })      
 
-    after(`disconnect from db`,()=>db.destroy());
-
-    before('clean the table', () => db.raw('TRUNCATE ie_moods, ie_users RESTART IDENTITY CASCADE'));
-
-    afterEach('cleanup',() => db.raw('TRUNCATE ie_moods, ie_users RESTART IDENTITY CASCADE'));
-
-    describe(`GET /api/moods`,()=>{
-        context(`Given no moods`,()=>{
-            it(`responds with 200 and an empty list`,()=>{
-                return supertest(app)
-                .get('/api/moods')
-                .expect(200,[])
-            });
-        })//end context no moods
-
-        context(`Given moods in the db`,()=>{
-            const testUsers = makeUsersArray();
-            const testmoods = makeMoodsArray();
-            beforeEach(`insert users and moods`,()=>{
-                return db
-                    .into('ie_users')
-                    .insert(testUsers)
-                    .then(()=>{
-                        return db
-                            .into('ie_moods')
-                            .insert(testmoods)
-                    });
-            })//end beforeEach
-
-            it(`responds with all moods`,()=>{
-                return supertest(app)
-                    .get('/api/moods')
-                    .expect(200, testmoods)
-            })//end it with moods in db
-        })//end context moods in db       
-    })//end describe GET
-
-    describe (`POST /api/moods`,()=>{
-        const testUsers = makeUsersArray();
-        beforeEach(`insert users`,()=>{
-            return db
-            .into('ie_users')
-            .insert(testUsers)
-        })//end of beforeEach 
-
-        it(`creates new mood entries with a 201 and the new entries with a default user_id`, function(){
-            //this.retries(3)
-            //will add in a user_id to newmoods
-            const newmood=
-                {
-                    mood_level:1,
-                    energy_level:3
-                };
-
+describe(`Protected Endpoints`, () => {
+    const protectedEndpoints = [      
+        {
+            name: 'GET /api/moods/:id',
+            path: '/api/moods/1'
+        },
+        {
+            name:'POST /api/moods/:id',
+            path: '/api/moods/1'
+        },
+      
+    ]
+    protectedEndpoints.forEach(endpoint => { 
+    describe(endpoint.name, () => {
+        it(`responds w 401 'missing bearer token when no basic token`,() => {
             return supertest(app)
-                .post('/api/moods')
-                .send(newmood)
-                .expect(res=>{
-                expect(res.body.mood_level).to.eql(newmood.mood_level)
-                expect(res.body.energy_level).to.eql(newmood.energy_level)
-                expect(res.body).to.have.property('user_id')
-                expect(res.body).to.have.property('id')
-                });
-
-        })//end of it creates new entries
-
-        const requiredFields = ['mood_level', 'energy_level'];
-
-        requiredFields.forEach(field=>{
-            const newMood = {
-                mood_level:3,
-                energy_level:4
-            };
-
-            it(`responds with a 400 and an error message when ${field} is missing`,()=>{
-                delete newMood[field]
+                .get(endpoint.path)
+                .expect(401, { error: `Missing bearer token` })   
+        })
+        it(`responds 401 'unauthorized request' when invalid JWT secret`, () => {
+            const validUser = testUsers[0]
+            const invalidSecret = 'bad-secret'
+            return supertest(app)
+                .get(endpoint.path)
+                .set('Authorization', makeAuthHeader(validUser, invalidSecret))
+                .expect(401, { error: `Unauthorized request` })
+        })
+        it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
+            const invalidUser = { username: 'user-not-existy', id: 1 }
+            return supertest(app)
+                  .get(endpoint.path)
+                  .set('Authorization', makeAuthHeader(invalidUser))
+                  .expect(401, { error: `Unauthorized request` })
+        })
+    })
+})
+    
+      context(`/api/moods/:id`, () => {
+        const testUser = testUsers[0];
+        it(`should respond with 200 and a list of moods`, () => {
+          return supertest(app)
+            .get('/api/moods/1')
+            .set('Authorization', makeAuthHeader(testUsers[0]))
+            .expect(200, [
+                {
+                user_id:testUser.id,
+                mood_level:"4",
+                energy_level:"5",
+                }
+              ])
+            })        
+            it(`POST /api/moods/1`, () => {
                 return supertest(app)
-                    .post('/api/moods')
-                    .send(newMood)
-                    .expect(400,{ error: {message : `Missing '${field}' in request body`}
-                    });
-
-            })//end of it required field
-        })//end of forEach
-
-        const validFields = ['mood_level', 'energy_level'];
-
-        validFields.forEach(field=>{
-            const newMood = {
-                mood_level:3,
-                energy_level:4
-            };
-            it(`responds with a 400 and an error message when ${field} is missing`,()=>{
-                newMood[field] = 80;
-
-                return supertest(app)
-                    .post('/api/moods')
-                    .send(newMood)
-                    .expect(400,{ error: {message : `${field} must be between 1-10`}
-                    });
-
-            })//end of it required field
-        })//end of forEach
-
-    })//end of describe POST /moods
-
+                  .post('/api/moods/1')
+                  .set('Authorization', makeAuthHeader(testUsers[0]))
+                  .send({ 
+                    moods:{                        
+                        user_id:testUser.id,
+                        mood_level:"4",
+                        energy_level:"5",                     
+                    } 
+                   })
+                  .expect(201, 
+                    {                    
+                        user_id:testUser.id,
+                        mood_level:"4",
+                        energy_level:"5"
+                    }
+                  );
+             });
+        });   
+      });
 })//end of describe /moods endpoint
