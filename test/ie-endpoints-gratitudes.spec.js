@@ -86,14 +86,7 @@ describe(`Protected Endpoints`, () => {
                  }
                 ]
             );
-            })
-            beforeEach('insert entries', () => 
-              helpers.seedTable(
-                db,
-                testUsers,
-                testGratitudes
-              )
-            );
+            })          
               
             it(`POST /api/gratitudes/1`, () => {
                 return supertest(app)

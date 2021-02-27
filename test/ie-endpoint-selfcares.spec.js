@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 describe('Selfcares Endpoints', function() {
     let db 
-    const { testUsers, testSelfcares } = helpers.makeFixtures()
+    const { testUsers } = helpers.makeFixtures()
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
@@ -93,13 +93,7 @@ describe(`Protected Endpoints`, () => {
                   }
                 ])
             })
-            beforeEach('insert entries', () => 
-            helpers.seedTable(
-              db,
-              testUsers,
-              testSelfcares
-            )
-          );
+         
             it(`POST /api/selfcares/1`, () => {
                 return supertest(app)
                   .post('/api/selfcares/1')
