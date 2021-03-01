@@ -4,7 +4,7 @@ function makeSelfCaresArray(){
             "id":1,
             "user_id":1,
             "content":"Did 15 minutes of breathing exercise",
-            "type":"intellectual",
+            "type":"energy",
             "rating":5,
             "date_modified":"2029-01-22T16:28:32.615Z"           
         },

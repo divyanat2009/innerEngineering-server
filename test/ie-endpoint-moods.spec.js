@@ -53,13 +53,13 @@ describe(`Protected Endpoints`, () => {
                 .set('Authorization', makeAuthHeader(validUser, invalidSecret))
                 .expect(401, { error: `Unauthorized request` })
         })
-        it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
-            const invalidUser = { username: 'user-not-existy', id: 1 }
-            return supertest(app)
-                  .get(endpoint.path)
-                  .set('Authorization', makeAuthHeader(invalidUser))
-                  .expect(401, { error: `Unauthorized request` })
-        })
+         it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
+             const invalidUser = { username: 'user-not-existy', id: 1 }
+             return supertest(app)
+                   .get(endpoint.path)
+                   .set('Authorization', makeAuthHeader(invalidUser))
+                   .expect(401, { error: `Unauthorized request` })
+         })
     })
 })
     

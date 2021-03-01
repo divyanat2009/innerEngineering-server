@@ -75,7 +75,7 @@ function makeSelfCaresArray(){
             id:1,
             user_id:1,
             content:"Did 15 minutes of breathing exercise",
-            type:"intellectual",
+            type:"energy",
             rating:5,
             date_modified:"2029-01-22T16:28:32.615Z"           
         },
@@ -136,16 +136,16 @@ function makeFixtures() {
     return { testUsers, testGratitudes, testSelfcares, testMoods, testGoals};
 };
 
-function seedUsers(db, users) {
-    const preppedUsers = users.map(user => ({
+function seedUsers(db, ie_users) {
+    const preppedUsers = ie_users.map(user => ({
       ...user,
       password: bcrypt.hashSync(user.password, 1)
     }))
-    return db.into('users').insert(preppedUsers)
+    return db.into('ie_users').insert(preppedUsers)
       .then(() =>
         db.raw(
-          `SELECT setval('users_id_seq', ?)`,
-          [users[users.length - 1].id],
+          `SELECT setval('ie_users_id_seq', ?)`,
+          [ie_users[ie_users.length - 1].id],
       )
     );
   };
@@ -153,45 +153,45 @@ function seedUsers(db, users) {
   function cleanTables(db) {
     return db.raw(
       `TRUNCATE
-      selfcares,
-      gratitudes,
-      users,
-      moods,
-      goals
+      ie_selfcares,
+      ie_gratitudes,
+      ie_users,
+      ie_moods,
+      ie_goals      
       RESTART IDENTITY CASCADE`
     )
   };
 
-  function seedTable(db, users, selfcares, gratitudes, moods, goals) {
-    const preppedUsers = users.map(user => ({
+  function seedTable(db, ie_users, ie_selfcares, ie_gratitudes, ie_moods, ie_goals) {
+    const preppedUsers = ie_users.map(user => ({
         ...user,
         password: bcrypt.hashSync(user.password, 1)
       }))
     return db.transaction(async trx => {
-      await trx.into('users').insert(preppedUsers)
+      await trx.into('ie_users').insert(preppedUsers)
       await trx.raw(
-          `SELECT setval('users_id_seq', ?)`,
-          [users[users.length - 1].id],
+          `SELECT setval('ie_users_id_seq', ?)`,
+          [ie_users[ie_users.length - 1].id],
       )
-      await trx.into('selfcares').insert(selfcares)      
+      await trx.into('ie_selfcares').insert(ie_selfcares)      
       await trx.raw(
-                `SELECT setval('selfcares_id_seq', ?)`,
-                [selfcares[selfcares.length - 1].id],
+                `SELECT setval('ie_selfcares_id_seq', ?)`,
+                [ie_selfcares[ie_selfcares.length - 1].id],
               )
-      await trx.into('gratitudes').insert(gratitudes)
+      await trx.into('ie_gratitudes').insert(ie_gratitudes)
       await trx.raw(
-               `SELECT setval('gratitudes_id_seq', ?)`,
-               [gratitudes[gratitudes.length - 1].id],
+               `SELECT setval('ie_gratitudes_id_seq', ?)`,
+               [ie_gratitudes[ie_gratitudes.length - 1].id],
        )
-       await trx.into('moods').insert(moods)
+       await trx.into('ie_moods').insert(ie_moods)
        await trx.raw(
-                `SELECT setval('moods_id_seq', ?)`,
-                [moods[moods.length - 1].id],
+                `SELECT setval('ie_moods_id_seq', ?)`,
+                [ie_moods[ie_moods.length - 1].id],
         )   
-       await trx.into('goals').insert(goals)
+       await trx.into('ie_goals').insert(ie_goals)
        await trx.raw(
-                `SELECT setval('goals_id_seq', ?)`,
-                [goals[goals.length - 1].id],
+                `SELECT setval('ie_goals_id_seq', ?)`,
+                [ie_goals[ie_goals.length - 1].id],
         )   
     });
 };

@@ -1,10 +1,10 @@
-const knex = require('knex')
-const app = require('../src/app')
-const jwt = require('jsonwebtoken')
-const helpers = require('./test-helpers')
+const knex = require('knex');
+const app = require('../src/app');
+const jwt = require('jsonwebtoken');
+const helpers = require('./test-helpers');
 
 describe('Auth Endpoints', function() {
-  let db
+  let db;
   const { testUsers, testGratitudes, testSelfcares, testMoods, testGoals } = helpers.makeFixtures()
   const testUser = testUsers[0]
 
@@ -20,7 +20,7 @@ describe('Auth Endpoints', function() {
   afterEach('cleanup', () => helpers.cleanTables(db))
 
   describe(`POST /api/auth/user-signin`, () => {
-    beforeEach('insert users', () =>
+    beforeEach('insert ie_users', () =>
       helpers.seedTable(
         db,
         testUsers,
@@ -75,6 +75,7 @@ describe('Auth Endpoints', function() {
              .send(userValidCreds)
              .expect(200, {
                authToken: expectedToken,
+               id: testUser.id
            })
         })
     })
