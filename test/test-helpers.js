@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 
+
 function makeUsersArray(){
     return[
         {
@@ -136,20 +137,23 @@ function makeFixtures() {
     return { testUsers, testGratitudes, testSelfcares, testMoods, testGoals};
 };
 
-function seedUsers(db, ie_users) {
-    const preppedUsers = ie_users.map(user => ({
-      ...user,
-      password: bcrypt.hashSync(user.password, 1)
-    }))
-    return db.into('ie_users').insert(preppedUsers)
-      .then(() =>
-        db.raw(
-          `SELECT setval('ie_users_id_seq', ?)`,
-          [ie_users[ie_users.length - 1].id],
-      )
+function seedUsers(db, users) {
+	const preppedUsers = users.map((user) => ({
+		...user,
+		password: bcrypt.hashSync(user.password, 1),
+	})
     );
-  };
-
+	return db
+		.into('ie_users')
+		.insert(preppedUsers)
+		.then(() => {
+			// update the auto sequence to stay in sync
+			db.raw(
+                `SELECT setval('ie_users_id_seq', coalesce(max(id),1), false) FROM ie_users`,
+                 [users[users.length - 1].id]);
+		});
+}
+ 
   function cleanTables(db) {
     return db.raw(
       `TRUNCATE
@@ -162,41 +166,36 @@ function seedUsers(db, ie_users) {
     )
   };
 
-  function seedTable(db, ie_users, ie_selfcares, ie_gratitudes, ie_moods, ie_goals) {
-    const preppedUsers = ie_users.map(user => ({
-        ...user,
-        password: bcrypt.hashSync(user.password, 1)
-      }))
+  function seedTable(db, users, gratitudes,selfcares, moods, goals ) {
     return db.transaction(async trx => {
-      await trx.into('ie_users').insert(preppedUsers)
+      await seedUsers(trx, users)
+      await trx.into('ie_gratitudes').insert(gratitudes)
+      //update auto sequence to match forced id values
       await trx.raw(
-          `SELECT setval('ie_users_id_seq', ?)`,
-          [ie_users[ie_users.length - 1].id],
+        `SELECT setval('ie_gratitudes_id_seq', coalesce(max(id),1), false) FROM ie_gratitudes`,
+        [gratitudes[gratitudes.length - 1]]
+      )   
+      await trx.into('ie_selfcares').insert(selfcares)
+      await trx.raw(
+        `SELECT setval('ie_selfcares_id_seq, ?)`,
+        [selfcares[selfcares.length - 1].id]
       )
-      await trx.into('ie_selfcares').insert(ie_selfcares)      
+      await trx.into('ie_moods').insert(moods)
       await trx.raw(
-                `SELECT setval('ie_selfcares_id_seq', ?)`,
-                [ie_selfcares[ie_selfcares.length - 1].id],
-              )
-      await trx.into('ie_gratitudes').insert(ie_gratitudes)
+        `SELECT setval('ie_moods_id_seq, ?)`,
+        [moods[moods.length - 1].id]
+      )
+      await trx.into('ie_goals').insert(goals)
       await trx.raw(
-               `SELECT setval('ie_gratitudes_id_seq', ?)`,
-               [ie_gratitudes[ie_gratitudes.length - 1].id],
-       )
-       await trx.into('ie_moods').insert(ie_moods)
-       await trx.raw(
-                `SELECT setval('ie_moods_id_seq', ?)`,
-                [ie_moods[ie_moods.length - 1].id],
-        )   
-       await trx.into('ie_goals').insert(ie_goals)
-       await trx.raw(
-                `SELECT setval('ie_goals_id_seq', ?)`,
-                [ie_goals[ie_goals.length - 1].id],
-        )   
-    });
-};
+        `SELECT setval('ie_goals_id_seq, ?)`,
+        [goals[goals.length - 1].id]
+      )
+     
+    });  
+}
 
-module.exports = {
+
+module.exports = {    
     seedUsers,
     makeFixtures,
     seedTable,

@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 describe('Gratitude Endpoints', function() {
     let db; 
-    const { testUsers, testGratitudes } = helpers.makeFixtures()
+    const { testUsers } = helpers.makeFixtures()
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
     const token = jwt.sign(
@@ -62,51 +62,67 @@ describe(`Protected Endpoints`, () => {
          })
     })
 })
-  context(`/api/gratitudes/:id`, () => {
-    const testUser = testUsers[0];
-     it(`should respond with 200 and a list of gratitudes`, () => {
-       return supertest(app)
-          .get('/api/gratitudes/1')
-          .set('Authorization', makeAuthHeader(testUsers[0]))
-          .expect(200, [
-                {                
-                  user_id:testUser.id,
-                  content:"A catch up phone call with mom",
-                  date_modified:"January 7th 2021"           
-                 },
-                 {                  
-                  user_id:testUser.id,
-                  content:"Passing the tests",
-                  date_modified:"January 7th 2021" 
-                 },
-                 {            
-                  user_id:testUser.id,
-                  content:"Sunset view from my condo",
-                  date_modified:"January 7th 2021" 
-                 }
-                ]
-            );
-            })          
-              
-            it(`POST /api/gratitudes/1`, () => {
-                return supertest(app)
-                  .post('/api/gratitudes/1')
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .send({ 
-                    user_id:"1",
-                    content:"pilates workout",
-                    date_modified:"January 27th 2021",                    
-                   })
-                  .expect(201, 
-                    {                    
-                      user_id:"1",
-                      content:"pilates workout",
-                      date_modified:"January 27th 2021"                        
-                    }
-                  );
-             });
-        });   
-    });
+  
+describe.only(`GET /api/gratitudes`, () => {
+    context(`given no gratitudes `, () => {
+        beforeEach('insert users', () => 
+        helpers.seedUsers(
+            db,
+            testUsers
+        )
+    )
+    it(`responds with 200 and an empty list`, () => {
+        return supertest(app)
+        .get(`/api/gratitudes`)
+        .set('Authorization', makeAuthHeader(testUsers[0]))
+        .expect(200, [])
+        })
+    })  
+    context(`given there are gratitudes in the db`, () => {
+        const testGratitudes = helpers.makeGratitudesArray();
+        beforeEach("insert gratitudes", () => {
+          return db.into("ie_gratitudes").insert(testGratitudes);
+        });    
+    it(`responds w 200 and all of the gratitudes`, () => {      
+            return supertest(app)
+            .get('/api/gratitudes')
+            .set('Authorization', makeAuthHeader(testUsers[0]))
+            .expect(200, testGratitudes) 
+        })
+    })
+})
+
+describe(`POST /api/gratitudes`, () => {
+    beforeEach('insert entries', () => 
+    helpers.seedUsers(
+        db,
+        testUsers
+    )
+)
+    
+    it(`creates an entry responding w 201 and the new entry`, () => {
+        const testUser = testUsers[0]
+        const newAppt = {
+               content:"The sunset view from my condo",
+               user_id:1
+            }
+            return supertest(app)
+            .post('/api/gratitudes/1')
+            .set('Authorization', makeAuthHeader(testUsers[0]))
+            .send(newAppt)
+            .expect(res => {
+                expect(res.body.content).to.eql(newGratitude.content)
+                expect(res.body.user_id).to.eql(testUser.id)
+            })
+            .then(res => 
+                    supertest(app)
+                        .get(`/api/gratitudes/${res.body.id}`)
+                        .set('Authorization', makeAuthHeader(testUsers[0]))
+                        .expect(res.body)
+                        )
+        })
+    })
+});
 })//end describe endpoint
 
 
