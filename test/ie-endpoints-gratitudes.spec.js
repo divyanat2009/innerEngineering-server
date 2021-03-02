@@ -3,6 +3,7 @@ const app = require('../src/app');
 require('dotenv').config();
 const helpers = require('./test-helpers');
 const jwt = require('jsonwebtoken');
+const { expect } = require('chai');
 
 describe('Gratitude Endpoints', function() {
     let db; 
@@ -25,9 +26,12 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
         })
         app.set('db', db)
       })      
+    after('disconnect from db', () => db.destroy());
+    before('cleanup', () => helpers.cleanTables(db));    
+    afterEach('cleanup', () => helpers.cleanTables(db));
 
-describe(`Protected Endpoints`, () => {
-    const protectedEndpoints = [      
+    describe(`Protected Endpoints`, () => {
+      const protectedEndpoints = [      
         {
             name: 'GET /api/gratitudes/:id',
             path: '/api/gratitudes/1'
@@ -63,7 +67,7 @@ describe(`Protected Endpoints`, () => {
     })
 })
   
-describe.only(`GET /api/gratitudes`, () => {
+describe.only(`GET /api/gratitudes/:id`, () => {
     context(`given no gratitudes `, () => {
         beforeEach('insert users', () => 
         helpers.seedUsers(
@@ -73,7 +77,7 @@ describe.only(`GET /api/gratitudes`, () => {
     )
     it(`responds with 200 and an empty list`, () => {
         return supertest(app)
-        .get(`/api/gratitudes`)
+        .get(`/api/gratitudes/1`)
         .set('Authorization', makeAuthHeader(testUsers[0]))
         .expect(200, [])
         })
@@ -85,14 +89,14 @@ describe.only(`GET /api/gratitudes`, () => {
         });    
     it(`responds w 200 and all of the gratitudes`, () => {      
             return supertest(app)
-            .get('/api/gratitudes')
+            .get('/api/gratitudes/1')
             .set('Authorization', makeAuthHeader(testUsers[0]))
             .expect(200, testGratitudes) 
         })
     })
 })
 
-describe(`POST /api/gratitudes`, () => {
+describe(`POST /api/gratitudes/:id`, () => {
     beforeEach('insert entries', () => 
     helpers.seedUsers(
         db,
@@ -102,17 +106,19 @@ describe(`POST /api/gratitudes`, () => {
     
     it(`creates an entry responding w 201 and the new entry`, () => {
         const testUser = testUsers[0]
-        const newAppt = {
+        const newGratitude = {
                content:"The sunset view from my condo",
-               user_id:1
+               user_id:1,
+               date_modified:"March 1 2021"
             }
             return supertest(app)
             .post('/api/gratitudes/1')
             .set('Authorization', makeAuthHeader(testUsers[0]))
-            .send(newAppt)
+            .send(newGratitude)
             .expect(res => {
                 expect(res.body.content).to.eql(newGratitude.content)
                 expect(res.body.user_id).to.eql(testUser.id)
+                expect(res.body.date_modified).to.eql(newGratitude.date_modified)
             })
             .then(res => 
                     supertest(app)
