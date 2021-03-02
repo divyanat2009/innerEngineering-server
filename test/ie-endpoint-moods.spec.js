@@ -62,40 +62,45 @@ describe(`Protected Endpoints`, () => {
          })
     })
 })
+context(`/api/moods/8`, () => {
+  const testUser = testUsers[0];
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
+  it(`should respond with 200 and a list of moods`, () => {
+    global.supertest(app)
+      .get('/api/moods/8')
+      .set('Authorization', `bearer ${token}` )
+      .expect(200,[
+        {                    
+          user_id:8,
+          "energy-level":5,
+          "mood-level":5,
+          date_modified:"January 27th 2021",
+                   
+        }
+      ]);       
     
-      context(`/api/moods/:id`, () => {
-        const testUser = testUsers[0];
-        it(`should respond with 200 and a list of moods`, () => {
-          return supertest(app)
-            .get('/api/moods/1')
-            .set('Authorization', makeAuthHeader(testUsers[0]))
-            .expect(200, [
-                {
-                user_id:testUser.id,
-                mood_level:"4",
-                energy_level:"5",
-                }
-              ])
-            })        
-            it(`POST /api/moods/1`, () => {
-                return supertest(app)
-                  .post('/api/moods/1')
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .send({ 
-                    moods:{                        
-                        user_id:testUser.id,
-                        mood_level:"4",
-                        energy_level:"5",                     
-                    } 
-                   })
-                  .expect(201, 
-                    {                    
-                        user_id:testUser.id,
-                        mood_level:"4",
-                        energy_level:"5"
-                    }
-                  );
-             });
-        });   
-      });
+  });
+   
+  it(`POST /api/moods/8`, () => {
+    global.supertest(app)
+      .post('/api/moods/8')
+      .set('Authorization', `bearer ${token}`)
+      .send({ 
+            user_id:8,
+            "energy-level":5,
+            "mood-level":5,
+            date_modified:"January 27th 2021"            
+            })
+      .expect(201, 
+              {                    
+                user_id:8,
+                "energy-level":5,
+                "mood-level":5,
+                date_modified:"January 27th 2021",                  
+              }
+            );
+        });
+      });    
+      
+  });
 })//end of describe /moods endpoint

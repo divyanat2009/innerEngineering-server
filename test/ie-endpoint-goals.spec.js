@@ -63,40 +63,45 @@ describe(`Protected Endpoints`, () => {
     })
 })
 
-      context(`/api/goals/:id`, () => {        
-        it(`should respond with 200 and a list of goals`, () => {
-          return supertest(app)
-            .get('/api/goals/1')
-            .set('Authorization', makeAuthHeader(testUsers[0]))
-            .expect(200, [
-                {
+context(`/api/goals/8`, () => {
+    const testUser = testUsers[0];
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
+    it(`should respond with 200 and a list of goals`, () => {
+      global.supertest(app)
+        .get('/api/goals/8')
+        .set('Authorization', `bearer ${token}` )
+        .expect(200,[
+          {                    
+            emotional: "4",
+            spiritual:"7",
+            physical:"5",
+            energy:"7"                     
+          }
+        ]);       
+      
+    })
+     
+    it(`POST /api/goals/8`, () => {
+        global.supertest(app)
+          .post('/api/goals/8')
+          .set('Authorization', `bearer ${token}`)
+          .send({ 
+               emotional: "4",
+               spiritual:"7",
+               physical:"5",
+               energy:"7"              
+               })
+          .expect(201, 
+                {   
                     emotional: "4",
                     spiritual:"7",
                     physical:"5",
-                    energy:"7"
+                    energy:"7"                   
+                                
                 }
-                ])
-            })
-          
-            it(`POST /api/goals/1`, () => {
-                return supertest(app)
-                  .post('/api/goals/1')
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .send({ 
-                        emotional: "4",
-                        spiritual:"7",
-                        physical:"5",
-                       energy:"7"                    
-                   })
-                  .expect(201, 
-                    {
-                        emotional: "4",
-                        spiritual:"7",
-                        physical:"5",
-                        energy:"7"
-                    }
-                  );
-             });
-        });   
-      });
+              );
+          });
+        });
+
+  });
 })//end of describe /goal endpoint

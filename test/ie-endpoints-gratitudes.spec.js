@@ -48,7 +48,7 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
             return supertest(app)
                 .get(endpoint.path)
                 .expect(401, { error: `Missing bearer token` })   
-        })
+        });
         it(`responds 401 'unauthorized request' when invalid JWT secret`, () => {
             const validUser = testUsers[0]
             const invalidSecret = 'bad-secret'
@@ -56,79 +56,55 @@ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
                 .get(endpoint.path)
                 .set('Authorization', makeAuthHeader(validUser, invalidSecret))
                 .expect(401, { error: `Unauthorized request` })
-        })
+        });
          it(`responds 401 'Unauthorized request' when invalid sub in payload`, () => {
            const invalidUser = { username: 'user-not-existy', id: 1 }
             return supertest(app)
                   .get(endpoint.path)
                   .set('Authorization', makeAuthHeader(invalidUser))
                   .expect(401, { error: `Unauthorized request` })
-         })
-    })
-})
-  
-describe.only(`GET /api/gratitudes/:id`, () => {
-    context(`given no gratitudes `, () => {
-        beforeEach('insert users', () => 
-        helpers.seedUsers(
-            db,
-            testUsers
-        )
-    )
-    it(`responds with 200 and an empty list`, () => {
-        return supertest(app)
-        .get(`/api/gratitudes/1`)
-        .set('Authorization', makeAuthHeader(testUsers[0]))
-        .expect(200, [])
-        })
-    })  
-    context(`given there are gratitudes in the db`, () => {
-        const testGratitudes = helpers.makeGratitudesArray();
-        beforeEach("insert gratitudes", () => {
-          return db.into("ie_gratitudes").insert(testGratitudes);
-        });    
-    it(`responds w 200 and all of the gratitudes`, () => {      
-            return supertest(app)
-            .get('/api/gratitudes/1')
-            .set('Authorization', makeAuthHeader(testUsers[0]))
-            .expect(200, testGratitudes) 
-        })
-    })
-})
-
-describe(`POST /api/gratitudes/:id`, () => {
-    beforeEach('insert entries', () => 
-    helpers.seedUsers(
-        db,
-        testUsers
-    )
-)
-    
-    it(`creates an entry responding w 201 and the new entry`, () => {
-        const testUser = testUsers[0]
-        const newGratitude = {
-               content:"The sunset view from my condo",
-               user_id:1,
-               date_modified:"March 1 2021"
-            }
-            return supertest(app)
-            .post('/api/gratitudes/1')
-            .set('Authorization', makeAuthHeader(testUsers[0]))
-            .send(newGratitude)
-            .expect(res => {
-                expect(res.body.content).to.eql(newGratitude.content)
-                expect(res.body.user_id).to.eql(testUser.id)
-                expect(res.body.date_modified).to.eql(newGratitude.date_modified)
-            })
-            .then(res => 
-                    supertest(app)
-                        .get(`/api/gratitudes/${res.body.id}`)
-                        .set('Authorization', makeAuthHeader(testUsers[0]))
-                        .expect(res.body)
-                        )
-        })
-    })
+         });
+    });
 });
+context(`/api/gratitudes/8`, () => {
+    const testUser = testUsers[0];
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
+    it(`should respond with 200 and a list of gratitudes`, () => {
+      global.supertest(app)
+        .get('/api/gratitudes/8')
+        .set('Authorization', `bearer ${token}` )
+        .expect(200,[
+          {                    
+            user_id:8,
+            content:"went for a run",
+            date_modified:"January 27th 2021",
+                     
+          }
+        ])       
+      
+        })
+     
+      it(`POST /api/gratitudes/8`, () => {
+        global.supertest(app)
+          .post('/api/gratitudes/8')
+          .set('Authorization', `bearer ${token}`)
+          .send({ 
+                user_id:"1",
+                content:"pilates workout",
+                date_modified:"January 27th 2021",
+              
+               })
+          .expect(201, 
+                {                    
+                 user_id:"1",
+                 content:"pilates workout",
+                 date_modified:"January 27th 2021",                   
+                }
+              );
+          });
+        });
+
+    });
 })//end describe endpoint
 
 

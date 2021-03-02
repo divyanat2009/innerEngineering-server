@@ -62,59 +62,47 @@ describe(`Protected Endpoints`, () => {
         })
     })
 })
-
-      context(`/api/selfcares/:id`, () => {
-        const testUser = testUsers[0];
-        it(`should respond with 200 and a list of selfcares`, () => {
-          return supertest(app)
-            .get('/api/selfcares/1')
-            .set('Authorization', makeAuthHeader(testUsers[0]))
-            .expect(200, [
-                {                    
-                    user_id:testUser.id,
-                    content:"went for a run",
-                    date_modified:"January 27th 2021",
-                    type:"emotional",
-                    rating:"5",          
-                  },
-                  {                    
-                    user_id:testUser.id,
-                    content:"15 mins of breathing exercise",
-                    date_modified:"January 27th 2021",
-                    type:"physical",
-                    rating:"5", 
-                  },
-                  {                    
-                    user_id:testUser.id,
-                    content:"pilates workout",
-                    date_modified:"January 27th 2021",
-                    type:"emotional",
-                    rating:"5",
-                  }
-                ])
-            })
-         
-            it(`POST /api/selfcares/1`, () => {
-                return supertest(app)
-                  .post('/api/selfcares/1')
-                  .set('Authorization', makeAuthHeader(testUsers[0]))
-                  .send({ 
-                    user_id:"1",
-                    content:"pilates workout",
-                    date_modified:"January 27th 2021",
-                    type:"emotional",
-                    rating:"5", 
-                   })
-                  .expect(201, 
-                    {                    
-                        user_id:"1",
-                        content:"pilates workout",
-                        date_modified:"January 27th 2021",
-                        type:"emotional",
-                        rating:"5",
-                    }
-                  );
-             });
-        });   
+context(`/api/selfcares/8`, () => {
+  const testUser = testUsers[0];
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
+  it(`should respond with 200 and a list of selfcares`, () => {
+    global.supertest(app)
+      .get('/api/selfcares/8')
+      .set('Authorization', `bearer ${token}` )
+      .expect(200,[
+        {                    
+          user_id:8,
+          content:"went for a run",
+          date_modified:"January 27th 2021",
+          type:"physical",
+          rating:"5"                   
+        }
+      ])       
+    
+      })
+   
+    it(`POST /api/selfcares/8`, () => {
+      global.supertest(app)
+        .post('/api/selfcares/8')
+        .set('Authorization', `bearer ${token}`)
+        .send({ 
+              user_id:"1",
+              content:"pilates workout",
+              date_modified:"January 27th 2021",
+              type:"physical",
+              rating:"5" 
+             })
+        .expect(201, 
+              {                    
+               user_id:"1",
+               content:"pilates workout",
+               date_modified:"January 27th 2021",    
+               type:"physical",
+               rating:"5"                
+              }
+            );
+        });
+      });
+     
       });
 })//end describe endpoint
