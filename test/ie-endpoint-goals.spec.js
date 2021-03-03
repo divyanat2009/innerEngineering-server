@@ -66,7 +66,7 @@ describe(`Protected Endpoints`, () => {
 context(`/api/goals/8`, () => {
     const testUser = testUsers[0];
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
-    it(`should respond with 200 and a list of goals`, () => {
+    it(`GET/api/goals/8, should respond with 200 and a list of goals`, () => {
       global.supertest(app)
         .get('/api/goals/8')
         .set('Authorization', `bearer ${token}` )

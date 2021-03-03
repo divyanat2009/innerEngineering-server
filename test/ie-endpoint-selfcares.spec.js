@@ -65,7 +65,7 @@ describe(`Protected Endpoints`, () => {
 context(`/api/selfcares/8`, () => {
   const testUser = testUsers[0];
   const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOjgsImlhdCI6MTYxNDcwNDIxMCwic3ViIjoiam9uZG9lMSJ9.DqlOHgs4C8AUgxhoPDf8dHr1xXZRbpvfW7-ko9WUrtQ"
-  it(`should respond with 200 and a list of selfcares`, () => {
+  it(`GET/api/selfcares/8, should respond with 200 and a list of selfcares`, () => {
     global.supertest(app)
       .get('/api/selfcares/8')
       .set('Authorization', `bearer ${token}` )

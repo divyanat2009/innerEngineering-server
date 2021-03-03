@@ -6,6 +6,7 @@ const MoodsService ={
         return knex
             .from('ie_moods')
             .where({ user_id })
+            .orderBy('date_modified', 'desc')
     },
     insertMoods(knex, newMood){
         return knex 
